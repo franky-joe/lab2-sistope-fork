@@ -1,0 +1,3 @@
+Para ejecutar: 
+
+./lab1 -i prueba_100.txt -o salida.txt -b
