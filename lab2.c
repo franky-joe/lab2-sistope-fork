@@ -12,10 +12,12 @@ int main(int argc, char *argv[]) {
     int opt;
     char *nombre_archivo_entrada = NULL;
     char *nombre_archivo_salida = NULL;
+    int chunks = 0;
+    int workers = 0;
     int mostrar_datos = 0;
     
     // gestion de parametros de entrada
-    while((opt = getopt(argc, argv, "i:o:b")) != -1) {
+    while((opt = getopt(argc, argv, "i:o:bc:n:")) != -1) {
         switch(opt){
             case 'i':
                 nombre_archivo_entrada = optarg;
@@ -26,65 +28,25 @@ int main(int argc, char *argv[]) {
             case 'b':
                 mostrar_datos ++;
                 break;
-            default:
+            case 'c':
+                chunks = atoi(optarg);
                 break;
+            case 'n':
+                workers = atoi(optarg);
+                break;
+            default:
+                fprintf(stderr, "Uso: %s [-i inputfile] [-o outputfile] [-b] [-c chunks] [-n workers]\n", argv[0]);
+                return 1;
         }
     }
+}
     
     int cantidad_lineas_archivo = contadorLineas(nombre_archivo_entrada);
     char * lista_string[cantidad_lineas_archivo + 3];
-
-
     volcarArchivo(nombre_archivo_entrada, lista_string, cantidad_lineas_archivo);
+
     int total_expre_si = 0;
     int total_expre_no = 0;
-
-    int i = 0;
-    while ( i < cantidad_lineas_archivo){
-        char buffer[100] = "Si " ;
-        char buffer2[100] = "No " ;
-
-        if (verificaER(lista_string[i])){
-            total_expre_si ++;
-            strcat(buffer, lista_string[i]);
-            //printf( "%s", buffer );
-            lista_string[i] = strdup(buffer);
-            
-        }else { 
-            total_expre_no ++;
-            strcat(buffer2, lista_string[i]);
-            //printf( "%s", buffer2 );
-            lista_string[i] = strdup(buffer2);
-        }
-        i++;
-    }
-    if (mostrar_datos){ 
-        char total_si[100] = "Total de expresiones que SI son regulares: "  ;
-        char total_no[100] = "Total de expresiones que NO son regulares: "  ;
-        char total_leidas[100] = "Total lineas leidas: ";
-        char buffer[100];
-
-        sprintf(buffer, "%d", total_expre_si);
-        strcat(total_si, buffer);
-        strcat(total_si, "\n");
-        lista_string[i] = total_si;
-            
-        buffer[0] = '\0';
-        sprintf(buffer, "%d", total_expre_no);
-        strcat(total_no, buffer);
-        strcat(total_no, "\n");
-        lista_string[i + 1] = total_no;
-        
-        buffer[0] = '\0';
-        sprintf(buffer, "%d", cantidad_lineas_archivo);
-        strcat(total_leidas, buffer);
-        strcat(total_leidas, "\n");
-        lista_string[ i + 2] = total_leidas ;  
-
-        volcarListaEnArchivo(nombre_archivo_salida, lista_string, cantidad_lineas_archivo+3);
-    }else {
-        volcarListaEnArchivo(nombre_archivo_salida, lista_string, cantidad_lineas_archivo);
-    }
 
 
     /* --------Aqui codigo verificacion-----------------*/
