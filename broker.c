@@ -54,9 +54,15 @@ int main (int argc, char **argv)
             filename_out = optarg;
             break;
     }
-    if(verificar(n,p,c,filename_in))
+    //Inicializamos para comunicarnos con los hijos 
+    int pid;
+
+    //Se forman las pipes
+    int** pipes = (int**)malloc(sizeof(int*)*p); 
+
+    //Definicion de pipes siendo esto una matriz que [i][j]
+    for(int i = 0; i<p;i++)
     {
-      printf("ERROR: variable no valida");
-      exit(0);
+        pipes[i] = (int*)malloc(sizeof(int)*2);
     }
 }
