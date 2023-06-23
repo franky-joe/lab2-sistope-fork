@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "fworker.h"
 
 #define MAX_BUFFER 1024
@@ -21,7 +22,8 @@ int main() {
             printf("+Total Expresiones resividas por %d = %d\n", getpid(), expresiones_resividas);
             printf("+Expreciones SI por %d = %d\n",getpid() , expresiones_SI);
             printf("+Expreciones NO por %d = %d\n",getpid() , expresiones_NO);
-            break;
+            // Matamos al worker
+            exit(EXIT_SUCCESS);
         } else {
             expresiones_resividas ++;
             if(verificaER(buffer)){

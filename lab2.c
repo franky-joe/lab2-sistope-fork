@@ -27,59 +27,66 @@ int main (int argc, char **argv)
     -i -o -n -c -b
     -i filename : archivo con el bombardeo
     -o filename : archivo de salida
-    -n: cantidad de workers a generar.
+    -w: cantidad de workers a generar.
     -c: tamaño del chunk, es decir, cantidad de líneas a leer por chunk.
     -b: bandera o flag que permite indicar si se quiere ver por consola la cantidad de expresiones regulares encontradas por cada proceso worker.
     */
 
-    int in, n = 0, c = 0, b = 0;
-    char * filename_in = NULL;
+    int in, w = 0, c = 0, b = 0;
+    char *filename_in = NULL;
     char *filename_out = NULL;
 
-    while ((in = getopt (argc, argv, "i:o:n:c:b")) != -1)
-    switch (in)
-    { 
-        case 'n': //Numero de workers
-            sscanf(optarg, "%d", &n);
-            break;
-        case 'c': //tamaño del chunks
-            sscanf(optarg, "%d", &c);
-            break;
-        case 'b': //bandera
-            sscanf(optarg, "%d", &c);
-            break;
-        case 'i': //Archivo entrada
-            filename_in = optarg;
-            break;
-        case 'o': //Archivo de salida
-            filename_out = optarg;
-            break;
-    }
-
-    if(verificar(n,p,c,filename_in))
+    while ((in = getopt(argc, argv, "i:o:w:c:b")) != -1)
     {
-      printf("ERROR: variable no valida");
-      exit(0);
+        switch (in)
+        {
+            case 'w': //Cantidad de workers
+                sscanf(optarg, "%d", &w);
+                break;
+            case 'c': //Tamaño del chunk
+                sscanf(optarg, "%d", &c);
+                break;
+            case 'b': //Bandera
+                b++;
+                break;
+            case 'i': //Archivo entrada
+                filename_in = optarg;
+                break;
+            case 'o': //Archivo de salida
+                filename_out = optarg;
+                break;
+        }
     }
 
-    int cantidad_lineas_archivo = contadorLineas(nombre_archivo_entrada);
-    char * lista_string[cantidad_lineas_archivo + 3];
-    volcarArchivo(nombre_archivo_entrada, lista_string, cantidad_lineas_archivo);
+    char parametros[200];
+    sprintf(parametros, "%s %s %d %d %d", filename_in, filename_out, w, c, b);
+    
 
-    int total_expre_si = 0;
-    int total_expre_no = 0;
-
-
-    //Inicializamos para comunicarnos con los hijos 
-    int pid;
-
-    //Se forman las pipes
-    int** pipes = (int**)malloc(sizeof(int*)*p); 
-
-    //Definicion de pipes siendo esto una matriz que [i][j]
-    for(int i = 0; i<p;i++){ 
-        pipes[i] = (int*)malloc(sizeof(int)*2);
-
+    // Llamar al validador
+    int parametrosValidos = validarParametros(parametros);
+    if ( parametrosValidos){
+        pid_t pid = fork(); // Crear el proceso hijo
+        if (pid == -1) {
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+        if (pid == 0) { // Código para el proceso hijo
+            
+            char workers[10], chunks[10], flags[10];
+            sprintf(workers, "%d", w);
+            sprintf(chunks, "%d", c);
+            sprintf(flags, "%d", b);
+            execlp("./broker", "./broker", filename_in, filename_out, workers, chunks, flags, (char *)NULL);
+            perror("execlp");
+            // terminanos el proceso
+            exit(EXIT_FAILURE);
+        } else { // Código para el proceso padre
+            wait(NULL); // Esperar a que el hijo termine
+        }
+    }else{
+        
     }
 
+    return 0;
 }
+

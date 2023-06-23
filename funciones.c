@@ -110,20 +110,33 @@ int volcarListaEnArchivo(char *filename, char* lista_string[], int largo_lista){
     return 1;
 }
 
-int insertarEnArchivo(char* string, char* NombreArchivo) {
-    FILE* archivo = fopen(NombreArchivo, "a"); // Abrir el archivo en modo "append"
-    if (archivo == NULL) {
-        perror("Error al abrir el archivo");
-        return -1;
-    }
+int validarParametros(const char *parametros)
+{
+    char filename_in[100];
+    char filename_out[100];
+    int w, c, b;
 
-    int resultado = fputs(string, archivo); // Insertar la cadena en el archivo
-    if (resultado == EOF) {
-        perror("Error al escribir en el archivo");
-        fclose(archivo);
-        return -1;
-    }
+    // Descomponer la cadena de parámetros
+    sscanf(parametros, "%s %s %d %d %d", filename_in, filename_out, &w, &c, &b);
 
-    fclose(archivo);
-    return 0;
+    // Verificar que los valores sean válidos
+    if (w < 1 || c < 1 ) {
+        printf("Error: valores de parámetros inválidos\n");
+        return 0;
+    }
+    // Verificar si el archivo de entrada existe
+    if (access(filename_in, F_OK) == -1) {
+        printf("Error: el archivo de entrada no existe\n");
+        return 0;
+    }
+    // Verivicar que la cantidad de lineas que se solicita analizar sea menor que las del archivo
+    int cantidad_lineas_archivo = contadorLineas(filename_in);
+    int lineas_que_se_solicita_leer =  c * w;
+    if (cantidad_lineas_archivo < lineas_que_se_solicita_leer){
+       printf("Error: chunks * workers es un mayor a las Expreiones que se encuentran en %s\n", filename_in);
+       return 0;
+
+    } 
+
+    return 1;
 }

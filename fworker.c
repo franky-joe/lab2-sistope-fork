@@ -44,6 +44,11 @@ int verificaER(char pruebas[]){
 }
 
 int buscar_FIN(const char* cadena) {
+    /*
+        fucion: busca la cadena "FIN"
+        Rec: Una lista de caracteres
+        Dom: 1 o 0
+    */
     int i = 0;
     while (cadena[i] != '\0') {
         if (cadena[i] == 'F' && cadena[i+1] == 'I' && cadena[i+2] == 'N') {
