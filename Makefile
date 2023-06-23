@@ -1,28 +1,30 @@
 CC = gcc
-CFLAGS = -g -Wall
-OBJS = fworker.o fbroker.o lab2.o funciones.o worker.o broker.o
+CFLAGS = -Wall -Wextra -g
 
-lab2: $(OBJS)
-	$(CC) $(CFLAGS) -o lab2 $(OBJS)
+# Objetivos
+all: broker worker
 
-lab2.o: lab2.c fworker.h fbroker.h funciones.h worker.h broker.h
-	$(CC) $(CFLAGS) -c lab2.c
+# Reglas de compilación
+broker: broker.o fbroker.o
+	$(CC) $(CFLAGS) -o broker broker.o fbroker.o
 
-fworker.o: fworker.c fworker.h funciones.h
-	$(CC) $(CFLAGS) -c fworker.c
+worker: worker.o fworker.o
+	$(CC) $(CFLAGS) -o worker worker.o fworker.o
 
-fbroker.o: fbroker.c fbroker.h funciones.h
-	$(CC) $(CFLAGS) -c fbroker.c
-
-funciones.o: funciones.c funciones.h
-	$(CC) $(CFLAGS) -c funciones.c
-
-worker.o: worker.c worker.h
-	$(CC) $(CFLAGS) -c worker.c
-
-broker.o: broker.c broker.h
+# Reglas de dependencias
+broker.o: broker.c fbroker.h
 	$(CC) $(CFLAGS) -c broker.c
 
+worker.o: worker.c fworker.h
+	$(CC) $(CFLAGS) -c worker.c
+
+fbroker.o: fbroker.c fbroker.h
+	$(CC) $(CFLAGS) -c fbroker.c
+
+fworker.o: fworker.c fworker.h
+	$(CC) $(CFLAGS) -c fworker.c
+
+# Regla para limpiar los archivos objeto y los ejecutables
 clean:
-	rm -f $(OBJS) lab2
+	rm -f broker worker *.o
 
