@@ -6,6 +6,24 @@
 #include <fcntl.h>
 #include "fbroker.h"
 
+int insertarEnArchivo(char* string, char* NombreArchivo) {
+    FILE* archivo = fopen(NombreArchivo, "a"); // Abrir el archivo en modo "append"
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    int resultado = fputs(string, archivo); // Insertar la cadena en el archivo
+    if (resultado == EOF) {
+        perror("Error al escribir en el archivo");
+        fclose(archivo);
+        return -1;
+    }
+
+    fclose(archivo);
+    return 0;
+}
+
 #define MAX_BUFFER 100000
 
 int main(int argc, char *argv[]) {
@@ -98,9 +116,11 @@ int main(int argc, char *argv[]) {
     //char *expresiones_revisadas[expresiones];
 
     // aqui quiero que leea hasta un salto de linea 
+    char* NombreArchivo = "Corregir.txt";
     for (i = 0; i < worker; i++) {
         while ((read(pipefds[i][1][0], line, MAX_BUFFER)) > 0) { // Leer la respuesta de cada worker.
             printf("%s", line); // Imprimir la respuesta del worker.
+            insertarEnArchivo(line, NombreArchivo);
         }
         close(pipefds[i][1][0]); // Cerramos el extremo de lectura del segundo pipe después de leer datos.
         wait(NULL);

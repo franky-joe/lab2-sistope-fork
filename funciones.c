@@ -110,3 +110,20 @@ int volcarListaEnArchivo(char *filename, char* lista_string[], int largo_lista){
     return 1;
 }
 
+int insertarEnArchivo(char* string, char* NombreArchivo) {
+    FILE* archivo = fopen(NombreArchivo, "a"); // Abrir el archivo en modo "append"
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    int resultado = fputs(string, archivo); // Insertar la cadena en el archivo
+    if (resultado == EOF) {
+        perror("Error al escribir en el archivo");
+        fclose(archivo);
+        return -1;
+    }
+
+    fclose(archivo);
+    return 0;
+}
