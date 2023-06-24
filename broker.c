@@ -8,6 +8,89 @@
 
 #define MAX_BUFFER 100000
 
+int insertarEnArchivo(char* string, char* NombreArchivo) {
+    FILE* archivo = fopen(NombreArchivo, "a"); // Abrir el archivo en modo "append"
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    int resultado = fputs(string, archivo); // Insertar la cadena en el archivo
+    if (resultado == EOF) {
+        perror("Error al escribir en el archivo");
+        fclose(archivo);
+        return -1;
+    }
+
+    fclose(archivo);
+    return 0;
+}
+
+int borrarLineasConMas(char* archivoEntrada, char* archivoSalida, char* prefijo) {
+    char buffer[1024];
+
+    FILE* archivoE = fopen(archivoEntrada, "r"); // Abrir el archivo en modo "append"
+    if (archivoE == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    FILE* archivoS = fopen(archivoSalida, "w+"); // Abrir el archivo en modo "append"
+    if (archivoS == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    while (fgets(buffer, sizeof(buffer), archivoE)) {
+        if (strncmp(buffer, prefijo, strlen(prefijo)) != 0) {
+            char* inicio = strchr(buffer, '-');
+            char* fin = NULL;
+
+            while (inicio != NULL) {
+                fin = strchr(inicio + 1, '-');
+
+                if (fin != NULL) {
+                    memmove(inicio+1, fin + 1, strlen(fin));
+                } else {
+                    memmove(inicio+1, inicio + 1 + strlen(inicio + 1), strlen(inicio + 1));
+                }
+
+                inicio = strchr(inicio + 1, '-');
+            }
+            fputs(buffer, archivoS);
+        }
+    }
+    
+    fclose(archivoS);
+    fclose(archivoE);
+    return 1;
+    }
+
+int contador(char* NombreArchivo) {
+    char buffer[1024];
+    int contador = 0, no = 0;
+
+    FILE* archivo = fopen(NombreArchivo, "r+"); 
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+    fseek(archivo, 0, SEEK_SET);
+    while (fgets(buffer, sizeof(buffer), archivo)) {
+        printf("%s", buffer);
+        if (strncmp(buffer, "Si", 2) == 0) {
+            contador++;
+        }else{
+            no++;
+        }
+    }
+    fprintf(archivo, "\nTotal de ocurrencias de 'Sí': %d\n", contador);
+    fprintf(archivo, "\nTotal de ocurrencias de 'No': %d\n", no);
+    fclose(archivo);
+    return contador;
+}
+
+
 int main(int argc, char *argv[]) {
     
     //sprintf(parametros, "%s %s %d %d %d", filename_in, filename_out, w, c, b);
@@ -99,17 +182,22 @@ int main(int argc, char *argv[]) {
         close(pipefds[i][0][1]); // Cerramos el extremo de escritura del primer pipe en el padre después de enviar datos.
     }
     //char *expresiones_revisadas[expresiones];
-
+    char* NombreArchivo = "Corregir.txt";
+    char* NombreArchivoCorregido = "Corregido.txt";
+    char* borrar = "+";
     // aqui quiero que leea hasta un salto de linea 
     if (b == 1){
         for (i = 0; i < worker; i++) {
             while ((read(pipefds[i][1][0], line, MAX_BUFFER)) > 0) { // Leer la respuesta de cada worker.
                 printf("%s", line); // Imprimir la respuesta del worker.
+                //insertarEnArchivo(line, NombreArchivo);
             }
             close(pipefds[i][1][0]); // Cerramos el extremo de lectura del segundo pipe después de leer datos.
             wait(NULL);
         }
         // Aqui falta que se escriba el archivo de salida
+        //borrarLineasConMas(NombreArchivo, NombreArchivoCorregido, borrar);
+        //contador(NombreArchivoCorregido);
     }else{
         // Solo escribir el archivo de salida 
 
