@@ -84,10 +84,47 @@ int contador(char* NombreArchivo) {
             no++;
         }
     }
-    fprintf(archivo, "\nTotal de ocurrencias de 'Sí': %d\n", contador);
-    fprintf(archivo, "\nTotal de ocurrencias de 'No': %d\n", no);
+    fprintf(archivo, "Total de ocurrencias de 'Sí': %d\n", contador);
+    fprintf(archivo, "Total de ocurrencias de 'No': %d\n", no);
+    fprintf(archivo, "Total de expresiones revisadas: %d\n", no + contador);
     fclose(archivo);
     return contador;
+}
+
+int salida(char* archivoEntrada, char* archivoSalida) {
+    char linea[100] ;
+    FILE* archivoE = fopen(archivoEntrada, "r"); // Abrir el archivo en modo "append"
+    if (archivoE == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    FILE* archivoS = fopen(archivoSalida, "w+"); // Abrir el archivo en modo "append"
+    if (archivoS == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+    while (fgets(linea, sizeof(linea), archivoE)) {
+        // Eliminar el salto de línea al final de la línea
+        
+        // Buscar la posición del guion en la línea
+        char* guion = strchr(linea, '-');
+        if (guion != NULL) {
+            int longitud = strcspn(linea, "\n");
+            linea[longitud-1] = ' ';
+            longitud = strcspn(linea, "\n");
+            linea[longitud] = '\0';
+            // Reorganizar la línea y escribirla en el archivo de salida
+            *guion = '\0';
+            fprintf(archivoS, "%s%s\n", guion +1, linea);
+        }else{
+            fputs(linea, archivoS);
+        }
+    }
+    
+    fclose(archivoE);
+    fclose(archivoS);
+    return 1;
 }
 
 
@@ -184,6 +221,7 @@ int main(int argc, char *argv[]) {
     //char *expresiones_revisadas[expresiones];
     char* NombreArchivo = "Corregir.txt";
     char* NombreArchivoCorregido = "Corregido.txt";
+    char* Salida = "Salida.txt";
     char* borrar = "+";
     // aqui quiero que leea hasta un salto de linea 
     if (b == 1){
@@ -198,6 +236,7 @@ int main(int argc, char *argv[]) {
         // Aqui falta que se escriba el archivo de salida
         borrarLineasConMas(NombreArchivo, NombreArchivoCorregido, borrar);
         contador(NombreArchivoCorregido);
+        salida(NombreArchivoCorregido, Salida);
     }else{
         // Solo escribir el archivo de salida 
         for (i = 0; i < worker; i++) {
@@ -210,6 +249,7 @@ int main(int argc, char *argv[]) {
         // Aqui falta que se escriba el archivo de salida
         borrarLineasConMas(NombreArchivo, NombreArchivoCorregido, borrar);
         contador(NombreArchivoCorregido);
+        salida(NombreArchivoCorregido, Salida);
 
     }
     // matamos al broker
