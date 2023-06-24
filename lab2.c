@@ -1,8 +1,8 @@
 //-----LABORATORIO 2 -------//
 //ARCHIVO PRINCIPAL PARA EL PROGRAMA
 /*RAMO: SISTEMAS OPERATIVOS*/
-/*AUTORES: FELIPE CORNEJO - CARLOS RETAMALES*/
-/*AYUDANTE: BENJANMIN MUÑOZ*/
+/*AUTORES: Franco cornejo - Marcelo Godoy*/
+
 
 #include <ctype.h>  //getopt
 #include <stdio.h>  //entrada y salida

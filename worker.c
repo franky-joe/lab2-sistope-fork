@@ -19,9 +19,9 @@ int main() {
 
       //if (strncmp(buffer, "FIN", 3) == 0) {
         if (buscar_FIN(buffer)) {
-            printf("+Total Expresiones resividas por %d = %d\n", getpid(), expresiones_resividas);
-            printf("+Expreciones SI por %d = %d\n",getpid() , expresiones_SI);
-            printf("+Expreciones NO por %d = %d\n",getpid() , expresiones_NO);
+            printf("+Total Expresiones resibidas por %d = %d\n", getpid(), expresiones_resividas);
+            printf("+Expresiones SI por %d = %d\n",getpid() , expresiones_SI);
+            printf("+Expresiones NO por %d = %d\n",getpid() , expresiones_NO);
             // Matamos al worker
             exit(EXIT_SUCCESS);
         } else {
