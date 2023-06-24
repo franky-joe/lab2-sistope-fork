@@ -200,6 +200,16 @@ int main(int argc, char *argv[]) {
         contador(NombreArchivoCorregido);
     }else{
         // Solo escribir el archivo de salida 
+        for (i = 0; i < worker; i++) {
+            while ((read(pipefds[i][1][0], line, MAX_BUFFER)) > 0) { // Leer la respuesta de cada worker.
+                insertarEnArchivo(line, NombreArchivo);
+            }
+            close(pipefds[i][1][0]); // Cerramos el extremo de lectura del segundo pipe después de leer datos.
+            wait(NULL);
+        }
+        // Aqui falta que se escriba el archivo de salida
+        borrarLineasConMas(NombreArchivo, NombreArchivoCorregido, borrar);
+        contador(NombreArchivoCorregido);
 
     }
     // matamos al broker
