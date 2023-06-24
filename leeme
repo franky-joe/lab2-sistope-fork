@@ -1,1 +1,1 @@
-./lab2 -w 10 -c 3 -i prueba_100.txt -o salida
+./lab2 -w 10 -c 3 -i prueba_100.txt -o salida -b
