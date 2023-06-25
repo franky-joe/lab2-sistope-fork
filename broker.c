@@ -53,19 +53,10 @@ int main(int argc, char *argv[]) {
     int cantidad_lineas_archivo = contadorLineas(filename);
     char * lista_string[cantidad_lineas_archivo];
     volcarArchivo(filename, lista_string, cantidad_lineas_archivo);
-    /*
-    int j = 0;
-    for (j = 0; j < cantidad_lineas_archivo; j++) {
-        printf("%d %s\n", j, lista_string[j]);
-    }
-    j=0;
-    */
 
-
+    int expresiones_restantes_chunks = cantidad_lineas_archivo % chunk;
     int worker_index = 0;
-    int expresiones_por_worker = cantidad_lineas_archivo / worker;
-    int expresiones_restantes = cantidad_lineas_archivo % worker;
-    int expresiones_totales_para_enviar = chunk * worker;
+   
     char line[MAX_BUFFER];
     int j=0;
 
@@ -73,22 +64,34 @@ int main(int argc, char *argv[]) {
     // printf("Lineas totales: %d\n", expresiones_totales_para_enviar);
     int lineas_enviadas = 0; // Declaración de la variable lineas_enviadas
     
-    while (j < expresiones_totales_para_enviar) {
-        if (lineas_enviadas < cantidad_lineas_archivo) {
-            usleep(1100);
-            memset(line, 0, sizeof(line)); // Limpiar el buffer antes de escribir en el pipe
-            strncpy(line, lista_string[j], sizeof(line) - 1); // Copiar la línea al buffer
-            write(pipefds[worker_index][0][1], line, strlen(line));
-            lineas_enviadas++; // Incrementar lineas_enviadas después de enviar una línea
-            // pequeño tiempo espera
-            //waitpid(cpid, NULL, 0);
-        }
+    // Repartir los datos de los chunks equitativamente entre los workers 
+    while (j < (cantidad_lineas_archivo - expresiones_restantes_chunks)) {
+        // pequeño tiempo espera, para que no se envie algo mientras esta procesando los datos anteriores 
+        usleep(1100);
+        memset(line, 0, sizeof(line)); // Limpiar el buffer antes de escribir en el pipe
+        strncpy(line, lista_string[j], sizeof(line) - 1); // Copiar la línea al buffer
+        write(pipefds[worker_index][0][1], line, strlen(line));
+        lineas_enviadas++; // Incrementar lineas_enviadas después de enviar una línea
+        //waitpid(cpid, NULL, 0);
         
         worker_index++;
         if (worker_index == worker) {
             worker_index = 0;
         }
         j++;
+    }
+
+    // Aqui se manda el Chunk incompleto al ultimo worker
+    while ( j < cantidad_lineas_archivo){
+        usleep(1100);
+        memset(line, 0, sizeof(line)); // Limpiar el buffer antes de escribir en el pipe
+        strncpy(line, lista_string[j], sizeof(line) - 1); // Copiar la línea al buffer
+        write(pipefds[worker_index][0][1], line, strlen(line));
+        lineas_enviadas++; // Incrementar lineas_enviadas después de enviar una línea
+        // pequeño tiempo espera
+        //waitpid(cpid, NULL, 0);
+        j++;
+
     }
 
 

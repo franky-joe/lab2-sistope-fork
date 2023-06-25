@@ -120,8 +120,13 @@ int validarParametros(const char *parametros)
     sscanf(parametros, "%s %s %d %d %d", filename_in, filename_out, &w, &c, &b);
 
     // Verificar que los valores sean válidos
-    if (w < 1 || c < 1 ) {
-        printf("Error: valores de parámetros inválidos\n");
+    if (w < 2 || c < 1 ) {
+        if (w == 1){
+            printf("Error: la cantidad de workers tiene que ser mayor que 1\n");
+        }else{
+            printf("Error: valores de parámetros inválidos\n");
+
+        }
         return 0;
     }
     // Verificar si el archivo de entrada existe
